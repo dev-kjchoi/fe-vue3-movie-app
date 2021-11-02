@@ -8,8 +8,9 @@ export default {
   // data - 취급해야 하는 데이터
   state: () => ({
     movies: [],
-    message: "",
+    message: "Search for the movie title!",
     loading: false,
+    theMovie: {},
   }),
 
   // computed - state를 활용하여 계산된 state를 만들어냄
@@ -30,44 +31,90 @@ export default {
   // methods - 비동기 처리 됨
   actions: {
     async searchMovies({ state, commit }, payload) {
-      const res = await _fetchMovie({
-        ...payload,
-        page: 1,
-      });
-      const { Search, totalResults } = res.data;
+      if (state.loading) return;
+
       commit("updateState", {
-        movies: _uniqBy(Search, "imdbID"),
+        message: "",
+        loading: true,
       });
 
-      const total = parseInt(totalResults, 10);
-      const pageLength = Math.ceil(total / 10);
+      try {
+        const res = await _fetchMovie({
+          ...payload,
+          page: 1,
+        });
+        const { Search, totalResults } = res.data;
+        commit("updateState", {
+          movies: _uniqBy(Search, "imdbID"),
+        });
 
-      if (pageLength > 1) {
-        for (let page = 2; page <= pageLength; page += 1) {
-          if (page > payload.number / 10) break;
-          const res = await _fetchMovie({
-            ...payload,
-            page,
-          });
-          const { Search } = res.data;
-          commit("updateState", {
-            movies: [...state.movies, ..._uniqBy(Search, "imdbID")],
-          });
+        const total = parseInt(totalResults, 10);
+        const pageLength = Math.ceil(total / 10);
+
+        if (pageLength > 1) {
+          for (let page = 2; page <= pageLength; page += 1) {
+            if (page > payload.number / 10) break;
+            const res = await _fetchMovie({
+              ...payload,
+              page,
+            });
+            const { Search } = res.data;
+            commit("updateState", {
+              movies: [...state.movies, ..._uniqBy(Search, "imdbID")],
+            });
+          }
         }
+      } catch (message) {
+        commit("updateState", {
+          movies: [],
+          message,
+        });
+      } finally {
+        commit("updateState", {
+          loading: false,
+        });
+      }
+    },
+    async searchMovieWithId({ state, commit }, payload) {
+      if (state.loading) return;
+
+      commit("updateState", {
+        theMovie: {},
+        loading: true,
+      });
+
+      try {
+        const res = await _fetchMovie(payload);
+        commit("updateState", {
+          theMovie: res.data,
+        });
+      } catch (error) {
+        commit("updateState", {
+          theMovie: {},
+        });
+      } finally {
+        commit("updateState", {
+          loading: false,
+        });
       }
     },
   },
 };
 
 function _fetchMovie(payload) {
-  const { title, type, year, page } = payload;
+  const { title, type, year, page, id } = payload;
   const OMDB_API_KEY = "7035c60c";
-  const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
+  const url = id
+    ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`
+    : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
 
   return new Promise((resolve, reject) => {
     axios
       .get(url)
       .then((res) => {
+        if (res.data.Error) {
+          reject(res.data.Error);
+        }
         resolve(res);
       })
       .catch((err) => {
