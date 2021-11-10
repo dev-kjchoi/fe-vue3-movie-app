@@ -1,2 +1,12 @@
+# 제품 모드
 [build]
   functions = "functions"
+
+# 개발 모드
+[dev]
+ framework = "#custom"
+ command = "npm run dev:webpack" # 연결할 프로젝트 개발 서버를 실행하는 명령(스크립트)
+ targetPort = 8079 # 연결할 프로젝트 개발 서버의 포트 지정
+ port = 8080 # 출력할 Netlify 서버의 포트 지정
+ publish = "dist"
+ autoLaunch = false
