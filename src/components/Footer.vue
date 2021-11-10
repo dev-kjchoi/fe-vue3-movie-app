@@ -2,7 +2,7 @@
   <footer>
     <Logo />
     <a href="https://github.com/dev-kjchoi" targer="_blank">
-      (c){{ new Date().getFullYear() }} KJCHOI
+      (c){{ new Date().getFullYear() }} KJ.CHOI
     </a>
   </footer>
 </template>

@@ -46,7 +46,7 @@ export default {
     width: 250px;
     height: 250px;
     margin: 40px auto 20px;
-    padding: 30px;
+    padding: 20px;
     border: 10px solid $gray-300;
     border-radius: 50%;
     box-sizing: border-box;
@@ -54,6 +54,7 @@ export default {
     position: relative;
     img {
       width: 100%;
+      border-radius: 50%;
     }
   }
 }
