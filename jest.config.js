@@ -13,7 +13,11 @@ module.exports = {
 
   // 일치하는 경로에서는 모듈을 가져오지 않음
   // '<rootDir>' 토큰을 사용해 루트 경로를 참조 할 수 있음
-  modulePathIgnorePatterns: ["<rootDir>/node_modules", "<rootDir>/dist"],
+  modulePathIgnorePatterns: [
+    "<rootDir>/node_modules",
+    "<rootDir>/dist",
+    "<rootDir>/cypress",
+  ],
 
   // jsdom 환경에 대한 URL을 설정
   // https://github.com/facebook/jest/issues/6766
